@@ -39,6 +39,13 @@ app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/chat", chatRouter);
 
-app.use(errorHandler);
+// app.use((err, req, res, next) => {
+//     console.log("TEST ERROR:", err);
+//     res.status(500).json({ error: err.message });
+
+
+// });
+
+ app.use(errorHandler);
 
 export default app;
