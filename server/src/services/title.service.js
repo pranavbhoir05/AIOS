@@ -1,9 +1,10 @@
 import axios from "axios";
+import { OLLAMA_CONFIG } from "../config/ollama.config.js";
 
 const generateTitle = async (message) => {
     try {
         const response = await axios.post(
-            `${process.env.OLLAMA_BASE_URL}/api/generate`,
+            `${OLLAMA_CONFIG.baseUrl}/api/generate`,
             {
                 model: "gemma3:4b",
                 prompt: `

@@ -5,6 +5,9 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import generateTitle from "../services/title.service.js";
+import { extractMemory } from "../services/memoryExtractor.service.js";
+import { retrieveRelevantMemories } from "../services/memoryRetriever.service.js";
+import { executeTool } from "../services/toolRouter.service.js";
 
 const sendMessage = asyncHandler(async (req, res) => {
     const { conversationId, message } = req.body;
@@ -39,16 +42,53 @@ const sendMessage = asyncHandler(async (req, res) => {
         content: message,
     });
 
+    console.log("1. User message saved");
+
+    await extractMemory(req.user._id, message);
+
+    const toolResult = await executeTool(message);
+    console.log(toolResult);
+
+if (toolResult) {
+    await Message.create({
+        conversation: conversation._id,
+        role: "assistant",
+        content: toolResult.data,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                conversationId: conversation._id,
+                reply: toolResult.data,
+            },
+            "Tool executed successfully"
+        )
+    );
+}
+
     const messages = await Message.find({
         conversation: conversation._id,
     }).sort({ createdAt: 1 });
+
+    const memories = await retrieveRelevantMemories(
+    req.user._id
+);
 
     const formattedMessages = messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
     }));
 
-    const aiReply = await askAI(formattedMessages);
+    console.log("2. Memory extraction finished");
+
+    const aiReply = await askAI(
+    formattedMessages,
+    memories
+);
+
+    console.log("3. AI reply received");
 
     await Message.create({
         conversation: conversation._id,

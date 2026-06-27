@@ -8,6 +8,7 @@ import errorHandler from "./middlewares/error.middleware.js";
 import healthRouter from "./routes/health.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import chatRouter from "./routes/chat.routes.js";
+import memoryRouter from "./routes/memory.routes.js";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use(cookieParser());
 app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/chat", chatRouter);
+app.use("/api/v1/memory", memoryRouter);
 
 // app.use((err, req, res, next) => {
 //     console.log("TEST ERROR:", err);
