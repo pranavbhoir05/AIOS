@@ -1,13 +1,13 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
-import askAI from "../services/ai.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
+
 import generateTitle from "../services/title.service.js";
 import { extractMemory } from "../services/memoryExtractor.service.js";
 import { retrieveRelevantMemories } from "../services/memoryRetriever.service.js";
-import { executeTool } from "../services/toolRouter.service.js";
+import { runAgent } from "../services/agent.service.js";
 
 const sendMessage = asyncHandler(async (req, res) => {
     const { conversationId, message } = req.body;
@@ -27,14 +27,14 @@ const sendMessage = asyncHandler(async (req, res) => {
         if (!conversation) {
             throw new ApiError(404, "Conversation not found");
         }
-   } else {
-    const title = await generateTitle(message);
+    } else {
+        const title = await generateTitle(message);
 
-    conversation = await Conversation.create({
-        owner: req.user._id,
-        title,
-    });
-}
+        conversation = await Conversation.create({
+            owner: req.user._id,
+            title,
+        });
+    }
 
     await Message.create({
         conversation: conversation._id,
@@ -46,47 +46,14 @@ const sendMessage = asyncHandler(async (req, res) => {
 
     await extractMemory(req.user._id, message);
 
-    const toolResult = await executeTool(message);
-    console.log(toolResult);
-
-if (toolResult) {
-    await Message.create({
-        conversation: conversation._id,
-        role: "assistant",
-        content: toolResult.data,
-    });
-
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                conversationId: conversation._id,
-                reply: toolResult.data,
-            },
-            "Tool executed successfully"
-        )
-    );
-}
-
-    const messages = await Message.find({
-        conversation: conversation._id,
-    }).sort({ createdAt: 1 });
-
     const memories = await retrieveRelevantMemories(
-    req.user._id
+    req.user._id,
+    message
 );
 
-    const formattedMessages = messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-    }));
+    console.log("2. Memory retrieval finished");
 
-    console.log("2. Memory extraction finished");
-
-    const aiReply = await askAI(
-    formattedMessages,
-    memories
-);
+    const aiReply = await runAgent(message, memories);
 
     console.log("3. AI reply received");
 
@@ -210,4 +177,10 @@ const deleteConversation = asyncHandler(async (req, res) => {
     );
 });
 
-export { sendMessage, getUserConversations, getConversationMessages, renameConversation, deleteConversation };
+export {
+    sendMessage,
+    getUserConversations,
+    getConversationMessages,
+    renameConversation,
+    deleteConversation,
+};

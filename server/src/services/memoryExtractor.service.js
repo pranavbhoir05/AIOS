@@ -1,4 +1,5 @@
 import Memory from "../models/memory.model.js";
+import { extractMemoryWithAI } from "./memoryAI.service.js";
 
 const patterns = [
     {
@@ -39,6 +40,32 @@ const patterns = [
 ];
 
 export const extractMemory = async (userId, message) => {
+     console.log("extractMemory() called");
+    try {
+        const aiMemory = await extractMemoryWithAI(message);
+
+        if (aiMemory.shouldStore) {
+            const existing = await Memory.findOne({
+                user: userId,
+                content: aiMemory.memory,
+            });
+
+            if (!existing) {
+                await Memory.create({
+                    user: userId,
+                    content: aiMemory.memory,
+                    category: aiMemory.category,
+                    importance: aiMemory.importance,
+                });
+            }
+
+            return;
+        }
+    } catch (error) {
+        console.log("AI memory extraction failed. Falling back to regex.");
+    }
+
+    // Fallback to regex
     for (const pattern of patterns) {
         if (pattern.regex.test(message)) {
             const existing = await Memory.findOne({

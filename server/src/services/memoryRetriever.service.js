@@ -1,6 +1,9 @@
 import Memory from "../models/memory.model.js";
 
-export const retrieveRelevantMemories = async (userId) => {
+export const retrieveRelevantMemories = async (
+    userId,
+    query = ""
+) => {
     try {
         const memories = await Memory.find({
             user: userId,

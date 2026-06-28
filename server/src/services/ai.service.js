@@ -33,7 +33,12 @@ Use these only if relevant. Never fabricate memories.`,
             }
         );
 
-        return response.data.message.content;
+        const answer = response.data.message.content;
+
+console.log("AI Response:");
+console.log(answer);
+
+return answer;
     } catch (error) {
         console.error(error.response?.data || error.message);
         throw new Error("Failed to generate AI response");
