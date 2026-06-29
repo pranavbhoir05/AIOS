@@ -1,24 +1,17 @@
 import { TOOLS } from "./toolRegistry.service.js";
 
-export const executeTool = async (task) => {
-    task.input ??= "";
-
-    const tool = TOOLS.find((t) => t.name === task.tool);
+export const executeTool = async (
+    toolName,
+    input,
+    context = {}
+) => {
+    const tool = TOOLS.find(
+        (t) => t.name === toolName
+    );
 
     if (!tool) {
-        throw new Error(`Unknown tool: ${task.tool}`);
+        throw new Error(`Tool not found: ${toolName}`);
     }
 
-    try {
-        const result = await tool.execute(task.input);
-
-        return result;
-    } catch (error) {
-        console.error(`Tool ${task.tool} failed:`, error);
-
-        return {
-            error: true,
-            message: error.message,
-        };
-    }
+    return await tool.execute(input, context);
 };

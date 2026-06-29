@@ -1,29 +1,92 @@
 import { createPlan } from "./planner.service.js";
 import { executePlan } from "./toolRouter.service.js";
 import askAI from "./ai.service.js";
+import { analyzeProject } from "./projectAnalyzer.service.js";
+import { exploreProject } from "./projectExplorer.service.js";
 
 export const runAgent = async (message, memories = "") => {
     const plan = await createPlan(message);
 
+    if (
+    message.toLowerCase().includes("analyze my project") ||
+    message.toLowerCase().includes("analyse my project")
+) {
+    const projectResults = await analyzeProject();
+
+    plan.tasks = [
+        ...projectResults
+            .filter(
+                (r) =>
+                    r.tool === "search_files" &&
+                    r.output?.success
+            )
+            .flatMap((r) =>
+                (r.output.data || []).map((file) => ({
+                    tool: "read_file",
+                    input: file,
+                }))
+            ),
+    ];
+}
+
+    const lowerMessage = message.toLowerCase();
+
+if (
+    message.toLowerCase().includes("analyze my project") ||
+    message.toLowerCase().includes("analyse my project")
+) {
+    const project = await exploreProject();
+
+    toolResults.push(...project.fileContents);
+}
+
     console.log("Plan:", JSON.stringify(plan, null, 2));
 
     const toolResults = await executePlan(plan.tasks);
+console.log(
+    "TOOL RESULTS:",
+    JSON.stringify(toolResults, null, 2)
+);
+   
+for (const result of toolResults) {
+    if (
+        result.tool !== "search_files" ||
+        !result.output?.success
+    ) {
+        continue;
+    }
+
+    const files = result.output.data || [];
+
+    for (const file of files) {
+        console.log("Auto-reading:", file);
+
+        const readResults = await executePlan([
+            {
+                tool: "read_file",
+                input: file,
+            },
+        ]);
+
+        toolResults.push(...readResults);
+    }
+}
 
     let systemPrompt = "";
 
-if (toolResults.length > 0) {
-    const toolSummary = toolResults
-    .map(
-        (r) =>
-            `${r.tool}: ${
-                typeof r.output === "object"
-                    ? r.output.data ?? JSON.stringify(r.output)
-                    : r.output
-            }`
-    )
-    .join("\n");
+    if (toolResults.length > 0) {
+        const toolSummary = toolResults
+            .map(
+                (r) =>
+                    `${r.tool}: ${
+                        typeof r.output === "object"
+                            ? r.output.data ?? JSON.stringify(r.output)
+                            : r.output
+                    }`
+            )
+            .join("\n");
 
-systemPrompt = `
+        systemPrompt = `
 You are AIOS.
 
 The following information has already been computed by trusted tools.
@@ -38,7 +101,7 @@ Information:
 
 ${toolSummary}
 `;
-}
+    }
 
     const messages = [];
 
@@ -49,19 +112,10 @@ ${toolSummary}
         });
     }
 
-    if (plan.llmQuery) {
-        messages.push({
+   messages.push({
     role: "user",
-    content: `
-Original user request:
-
-${message}
-
-Use the verified tool results above wherever applicable.
-Answer every part of the original request.
-`,
+    content: plan.llmQuery || message,
 });
-    }
 
     if (messages.length === 0) {
         return toolResults
@@ -75,7 +129,9 @@ Answer every part of the original request.
             )
             .join("\n");
     }
+
     console.log("Messages sent to AI:");
-console.log(JSON.stringify(messages, null, 2));
+    console.log(JSON.stringify(messages, null, 2));
+
     return await askAI(messages, memories);
 };

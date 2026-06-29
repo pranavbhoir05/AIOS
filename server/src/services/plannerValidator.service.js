@@ -18,12 +18,10 @@ export const validatePlan = (plan, originalMessage) => {
         }))
         .filter((task) => task.tool);
 
-    if (
-        typeof plan.llmQuery !== "string" ||
-        !plan.llmQuery.trim()
-    ) {
-        plan.llmQuery = originalMessage;
-    }
+   plan.llmQuery =
+    typeof plan.llmQuery === "string"
+        ? plan.llmQuery
+        : "";
 
     return plan;
 };

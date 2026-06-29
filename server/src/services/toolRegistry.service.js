@@ -6,6 +6,15 @@ import {executeCurrencyTool} from "./tools/currency.tool.js"
 import { executeBrowserTool } from "./tools/browser.tool.js";
 import { executeBrowserOpenTool } from "./tools/browser/open.tool.js";
 import { executeBrowserExtractTool } from "./tools/browser/extract.tool.js";
+import {executeReadFileTool} from "./tools/filesystem/readFile.tool.js";
+import {executeListDirectoryTool} from "./tools/filesystem/listDirectory.tool.js";
+import {executeWriteFileTool} from "./tools/filesystem/writeFile.tool.js";
+import {executeSearchFilesTool} from "./tools/filesystem/searchFiles.tool.js";
+import {executeReplaceInFileTool} from "./tools/filesystem/replaceInFile.tool.js";
+import { executeBrowserClickTool } from "./tools/browser/click.tool.js";
+import { executeBrowserTypeTool } from "./tools/browser/type.tool.js";
+import { executeBrowserWaitTool } from "./tools/browser/wait.tool.js";
+import { executeBrowserScreenshotTool } from "./tools/browser/screenshot.tool.js";
 
 
 export const TOOLS = [
@@ -198,5 +207,153 @@ export const TOOLS = [
     produces: "text",
 
     execute: executeWebSearchTool,
+},
+{
+    name: "read_file",
+    description: "Read the contents of a file",
+
+    category: "filesystem",
+
+    capabilities: [
+        "read_file",
+        "source_code",
+        "text_file",
+        "configuration"
+    ],
+
+    requiresInput: true,
+
+    execute: executeReadFileTool,
+},
+{
+    name: "list_directory",
+    description: "List files and folders in a directory",
+
+    category: "filesystem",
+
+    capabilities: [
+        "list_files",
+        "browse_project",
+        "list_directory"
+    ],
+
+    requiresInput: false,
+
+    execute: executeListDirectoryTool,
+},
+{
+    name: "write_file",
+
+    description: "Create or overwrite a file",
+
+    category: "filesystem",
+
+    capabilities: [
+        "write_file",
+        "create_file",
+        "edit_file"
+    ],
+
+    requiresInput: true,
+
+    execute: executeWriteFileTool,
+},
+{
+    name: "search_files",
+
+    description: "Search for files by name",
+
+    category: "filesystem",
+
+    capabilities: [
+        "find_file",
+        "search_project",
+        "locate_file"
+    ],
+
+    requiresInput: true,
+
+    execute: executeSearchFilesTool,
+},
+{
+  "tasks": [
+    {
+      "tool": "replace_in_file",
+      "input": {
+        "path": "src/index.js",
+        "search": "const port = 3000;",
+        "replace": "const port = 8000;"
+      }
+    }
+  ],
+  "llmQuery": ""
+},
+{
+    name: "browser_click",
+
+    description: "Click an element on the current webpage",
+
+    category: "browser",
+
+    capabilities: [
+        "click",
+        "button",
+        "link",
+        "navigation"
+    ],
+
+    requiresInput: true,
+
+    execute: executeBrowserClickTool,
+},
+{
+    name: "browser_type",
+
+    description: "Type text into an input field",
+
+    category: "browser",
+
+    capabilities: [
+        "type",
+        "fill_form",
+        "input_text"
+    ],
+
+    requiresInput: true,
+
+    execute: executeBrowserTypeTool,
+},
+{
+    name: "browser_wait",
+
+    description: "Wait for a page, selector, or timeout",
+
+    category: "browser",
+
+    capabilities: [
+        "wait",
+        "page_load",
+        "dynamic_content"
+    ],
+
+    requiresInput: false,
+
+    execute: executeBrowserWaitTool,
+},
+{
+    name: "browser_screenshot",
+
+    description: "Capture a screenshot of the current page",
+
+    category: "browser",
+
+    capabilities: [
+        "screenshot",
+        "capture_page"
+    ],
+
+    requiresInput: false,
+
+    execute: executeBrowserScreenshotTool,
 },
 ];

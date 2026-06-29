@@ -2,40 +2,42 @@ import { executeTool } from "./toolExecutor.service.js";
 import { validateTasks } from "./toolValidator.service.js";
 import { withTimeout } from "./toolTimeout.service.js";
 
-export const executePlan = async (plan) => {
-    tasks = validateTasks(tasks);
-   const results = await Promise.all(
-    tasks.map(async (task) => {
-        const tool = TOOLS.find(
-            (t) => t.name === task.tool
-        );
+export const executePlan = async (planTasks = []) => {
+    const tasks = validateTasks(planTasks);
 
-        if (!tool) {
-            return {
-                tool: task.tool,
-                success: false,
-                data: "Tool not found",
-            };
-        }
+    const results = [];
+    const context = {};
 
+    for (const task of tasks) {
         try {
             const result = await withTimeout(
-                tool.execute(task.input),
+                executeTool(
+                    task.tool,
+                    task.input,
+                    context
+                ),
                 10000
             );
 
-            return {
-                tool: task.tool,
-                ...result,
-            };
-        } catch (error) {
-            return {
-                tool: task.tool,
-                success: false,
-                data: error.message,
-            };
-        }
-    })
-);
+            if (result.success) {
+                context[task.tool] = result.data;
+            }
 
-return results;
+            results.push({
+                tool: task.tool,
+                output: result,
+            });
+
+        } catch (error) {
+            results.push({
+                tool: task.tool,
+                output: {
+                    success: false,
+                    data: error.message,
+                },
+            });
+        }
+    }
+
+    return results;
+};
