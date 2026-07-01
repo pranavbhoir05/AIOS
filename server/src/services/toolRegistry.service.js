@@ -15,6 +15,7 @@ import { executeBrowserClickTool } from "./tools/browser/click.tool.js";
 import { executeBrowserTypeTool } from "./tools/browser/type.tool.js";
 import { executeBrowserWaitTool } from "./tools/browser/wait.tool.js";
 import { executeBrowserScreenshotTool } from "./tools/browser/screenshot.tool.js";
+import { executeTerminalTool } from "./tools/terminal.tool.js";
 
 
 export const TOOLS = [
@@ -355,5 +356,22 @@ export const TOOLS = [
     requiresInput: false,
 
     execute: executeBrowserScreenshotTool,
+},
+{
+    name: "terminal",
+
+    description: "Run terminal commands",
+
+    category: "system",
+
+    capabilities: [
+        "run_command",
+        "execute_shell",
+        "terminal"
+    ],
+
+    requiresInput: true,
+
+    execute: executeTerminalTool,
 },
 ];

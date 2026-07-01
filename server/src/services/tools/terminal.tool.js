@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 export const executeTerminalTool = async (command) => {
     try {
         const { stdout, stderr } = await execAsync(command, {
-            timeout: 30000,
+            cwd: process.cwd(),
             maxBuffer: 1024 * 1024,
         });
 
@@ -15,12 +15,17 @@ export const executeTerminalTool = async (command) => {
             data: {
                 stdout,
                 stderr,
+                exitCode: 0,
             },
         };
     } catch (error) {
         return {
             success: false,
-            data: error.message,
+            data: {
+                stdout: error.stdout || "",
+                stderr: error.stderr || error.message,
+                exitCode: error.code ?? 1,
+            },
         };
     }
 };

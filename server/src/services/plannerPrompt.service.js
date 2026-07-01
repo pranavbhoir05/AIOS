@@ -339,4 +339,8 @@ Output:
   ],
   "llmQuery":"Determine which additional files should be inspected to diagnose and fix the backend."
 }
+  {
+  "tool": "terminal",
+  "input": "docker ps"
+}
 `;
