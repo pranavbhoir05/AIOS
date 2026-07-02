@@ -3,8 +3,32 @@ import { executePlan } from "./toolRouter.service.js";
 import askAI from "./ai.service.js";
 import { analyzeProject } from "./projectAnalyzer.service.js";
 import { exploreProject } from "./projectExplorer.service.js";
+import { runLoop } from "./loopAgent.service.js";
+import { fixBackend } from "./fixAgent.service.js";
 
 export const runAgent = async (message, memories = "") => {
+if (message.toLowerCase() === "fix my backend") {
+    const result = await fixBackend(message);
+
+    console.log(
+        "FIX AGENT:",
+        JSON.stringify(result, null, 2)
+    );
+
+    return "Fix Agent executed. Check server logs.";
+}
+
+    if (message.toLowerCase().includes("fix my backend")) {
+    const history = await runLoop(message);
+
+    console.log(
+        "LOOP HISTORY:",
+        JSON.stringify(history, null, 2)
+    );
+
+    return "Loop executed. Check server logs.";
+}
+    
     const plan = await createPlan(message);
 
     if (
@@ -75,16 +99,16 @@ for (const result of toolResults) {
     let systemPrompt = "";
 
     if (toolResults.length > 0) {
-        const toolSummary = toolResults
-            .map(
-                (r) =>
-                    `${r.tool}: ${
-                        typeof r.output === "object"
-                            ? r.output.data ?? JSON.stringify(r.output)
-                            : r.output
-                    }`
-            )
-            .join("\n");
+       const toolSummary = toolResults
+    .map((r) => {
+        const value =
+            typeof r.output?.data === "object"
+                ? JSON.stringify(r.output.data, null, 2)
+                : r.output?.data;
+
+        return `${r.tool}: ${value}`;
+    })
+    .join("\n\n");
 
         systemPrompt = `
 You are AIOS.
