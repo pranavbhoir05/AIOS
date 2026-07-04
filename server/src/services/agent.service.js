@@ -10,14 +10,29 @@ export const runAgent = async (message, memories = "") => {
 if (message.toLowerCase() === "fix my backend") {
     const result = await fixBackend(message);
 
-    console.log(
-        "FIX AGENT:",
-        JSON.stringify(result, null, 2)
-    );
+    const messages = [
+        {
+            role: "system",
+            content: `
+You are AIOS.
 
-    return "Fix Agent executed. Check server logs.";
+You attempted to diagnose a backend project.
+
+${JSON.stringify(result, null, 2)}
+
+Provide:
+
+1. Root cause
+2. Files to inspect next
+3. Files to modify
+4. Exact fix
+5. Why the fix works.
+`,
+        },
+    ];
+
+    return await askAI(messages, memories);
 }
-
     if (message.toLowerCase().includes("fix my backend")) {
     const history = await runLoop(message);
 
