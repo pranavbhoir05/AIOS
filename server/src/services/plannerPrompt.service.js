@@ -402,4 +402,30 @@ Output:
   ],
   "llmQuery": "Diagnose the database connection problem."
 }
+  User:
+Find loginUser
+
+Output:
+{
+  "tasks": [
+    {
+      "tool": "search_code",
+      "input": "loginUser"
+    }
+  ],
+  "llmQuery": ""
+},
+User:
+Where is generateAccessToken?
+
+Output:
+{
+  "tasks": [
+    {
+      "tool": "search_code",
+      "input": "generateAccessToken"
+    }
+  ],
+  "llmQuery": ""
+}
 `;

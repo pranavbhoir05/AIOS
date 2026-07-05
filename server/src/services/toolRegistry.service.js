@@ -16,6 +16,7 @@ import { executeBrowserTypeTool } from "./tools/browser/type.tool.js";
 import { executeBrowserWaitTool } from "./tools/browser/wait.tool.js";
 import { executeBrowserScreenshotTool } from "./tools/browser/screenshot.tool.js";
 import { executeTerminalTool } from "./tools/terminal.tool.js";
+import { executeSearchCodeTool } from "./tools/filesystem/searchCode.tool.js";
 
 
 export const TOOLS = [
@@ -373,5 +374,22 @@ export const TOOLS = [
     requiresInput: true,
 
     execute: executeTerminalTool,
+},
+{
+    name: "search_code",
+
+    description: "Search inside source code",
+
+    category: "filesystem",
+
+    capabilities: [
+        "find_code",
+        "search_source",
+        "find_function"
+    ],
+
+    requiresInput: true,
+
+    execute: executeSearchCodeTool,
 },
 ];
