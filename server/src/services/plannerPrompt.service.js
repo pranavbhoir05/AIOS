@@ -343,4 +343,63 @@ Output:
   "tool": "terminal",
   "input": "docker ps"
 }
+ User:
+Fix the login API
+
+Output:
+{
+  "tasks": [
+    {
+      "tool": "search_files",
+      "input": "auth.controller"
+    },
+    {
+      "tool": "search_files",
+      "input": "auth.routes"
+    },
+    {
+      "tool": "search_files",
+      "input": "auth.service"
+    }
+  ],
+  "llmQuery": "Diagnose why the login API is failing."
+} 
+  User:
+Fix JWT authentication
+
+Output:
+{
+  "tasks": [
+    {
+      "tool": "search_files",
+      "input": "jwt"
+    },
+    {
+      "tool": "search_files",
+      "input": "auth"
+    }
+  ],
+  "llmQuery": "Find the JWT authentication issue."
+}
+  User:
+Fix database connection
+
+Output:
+{
+  "tasks": [
+    {
+      "tool": "search_files",
+      "input": "database"
+    },
+    {
+      "tool": "search_files",
+      "input": "mongoose"
+    },
+    {
+      "tool": "search_files",
+      "input": ".env"
+    }
+  ],
+  "llmQuery": "Diagnose the database connection problem."
+}
 `;
